@@ -9,7 +9,7 @@ import redis.asyncio as redis
 from module_message_broker import RedisMessageBroker, Message, MessageTopic
 
 # 🔧 Setup broker
-redis_client = redis.Redis(host='localhost', port=6379, decode_responses=False)
+redis_client = redis.Redis(host='localhost', port=6379, decode_responses=True)
 broker = RedisMessageBroker(
     redis_client=redis_client,
     consumer_group="my_service",    # 🏷️ Service name
@@ -85,14 +85,14 @@ await broker.handle_requests([MessageTopic.USER_CHAT_CREATE], handle_requests)
 
 ```python
 # 🏠 Local development
-redis_client = redis.Redis(host='localhost', port=6379, decode_responses=False)
+redis_client = redis.Redis(host='localhost', port=6379, decode_responses=True)
 
 # ☁️ Production
 redis_client = redis.Redis(
     host='redis.example.com',
     port=6379,
     password='your_password',
-    decode_responses=False,  # ⚠️ Must be False
+    decode_responses=True,
     max_connections=20
 )
 
@@ -149,7 +149,7 @@ asyncio.run(main())
 
 ## ⚠️ Important Notes
 
-- **Always set `decode_responses=False`** in Redis client
+- **Always set `decode_responses=True`** in Redis client
 - **Use different `consumer_group`** for each service
 - **Use unique `consumer_name`** for each instance
 - **Always call `stop_listening()`** when shutting down

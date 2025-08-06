@@ -9,7 +9,7 @@ from module_message_broker import RedisMessageBroker
 @pytest_asyncio.fixture
 async def redis_client():
     """Create Redis client for testing."""
-    client = redis.Redis(host='localhost', port=6379, decode_responses=False)
+    client = redis.Redis(host='localhost', port=6379, decode_responses=True)
     try:
         await client.ping()
         yield client

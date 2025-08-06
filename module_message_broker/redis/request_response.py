@@ -182,12 +182,8 @@ class RedisRequestResponseHandler:
             for stream_name, messages in streams:
                 for message_id, fields in messages:
                     try:
-                        # Deserialize message
-                        message = self._serializer.deserialize(
-                            stream_name.decode(),
-                            message_id.decode(),
-                            {k.decode(): v.decode() for k, v in fields.items()},
-                        )
+                        # Deserialize message (all already strings with decode_responses=True)
+                        message = self._serializer.deserialize(stream_name, message_id, fields)
 
                         # Find pending request
                         correlation_id = message.correlation_id
@@ -231,7 +227,7 @@ class RedisRequestResponseHandler:
             )
 
             for stream_name, messages in streams:
-                topic = stream_name.decode()
+                topic = stream_name
                 handler = self._request_handlers.get(topic)
 
                 if not handler:
@@ -239,12 +235,8 @@ class RedisRequestResponseHandler:
 
                 for message_id, fields in messages:
                     try:
-                        # Deserialize request message
-                        request_message = self._serializer.deserialize(
-                            topic,
-                            message_id.decode(),
-                            {k.decode(): v.decode() for k, v in fields.items()},
-                        )
+                        # Deserialize request message (all already strings with decode_responses=True)
+                        request_message = self._serializer.deserialize(topic, message_id, fields)
 
                         # Skip if this is a response message
                         if request_message.is_response:

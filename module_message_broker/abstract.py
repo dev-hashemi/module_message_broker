@@ -4,7 +4,7 @@ import abc
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Awaitable, Callable, Dict, List, Optional
+from typing import Any, Awaitable, Callable, Dict, List, Optional, Union
 
 from pydantic import BaseModel
 
@@ -30,7 +30,9 @@ class Message(abc.ABC):
     data: Dict[str, Any]
     message_id: Optional[str] = None
     timestamp: Optional[datetime] = None
-
+    correlation_id: Optional[str] = None
+    reply_to: Optional[str] = None
+    is_response: bool = False
 
     def __post_init__(self):
         """Initialize default values."""
@@ -66,6 +68,7 @@ class UserChatInteractionAddMessage(Message):
 
 # Type alias for message handlers
 MessageHandler = Callable[[Message], Awaitable[None]]
+RequestHandler = Callable[[Message], Awaitable[Message]]
 
 
 class MessageSerializer(abc.ABC):
@@ -133,4 +136,31 @@ class MessageBroker(abc.ABC):
     @abc.abstractmethod
     async def stop_listening(self) -> None:
         """Stop the message listener process."""
+        pass
+
+    @abc.abstractmethod
+    async def request(self, message: Message, timeout: float = 30.0) -> Message:
+        """Send a request message and wait for a response.
+        
+        Args:
+            message: Request message to send
+            timeout: Maximum time to wait for response in seconds
+            
+        Returns:
+            Response message
+            
+        Raises:
+            TimeoutError: If no response received within timeout
+            RuntimeError: If broker is not connected or other errors
+        """
+        pass
+
+    @abc.abstractmethod
+    async def handle_requests(self, topics: List[str], handler: RequestHandler) -> None:
+        """Handle request messages on specified topics.
+        
+        Args:
+            topics: List of topics to handle requests for
+            handler: Async callback function that processes requests and returns responses
+        """
         pass

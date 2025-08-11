@@ -9,12 +9,30 @@ from typing import Any, Awaitable, Callable, Dict, List, Optional, Union
 from pydantic import BaseModel
 
 
-class MessageTopic(str, Enum):
-    """Standard message topics for the application."""
+class PubSubTopic(str, Enum):
+    """Pub/Sub message topics for asynchronous event-driven communication."""
 
-    # User service topics
+    # User service events
     USER_CHAT_CREATE = "user.chat.create"
     USER_CHAT_INTERACTION_ADD = "user.chat.interaction.add"
+
+
+class RequestTopic(str, Enum):
+    """Request/Response topics for synchronous inter-service communication."""
+    
+    # LLM service requests
+    LLM_GENERATE_TEXT = "llm.generate.text"
+    LLM_GENERATE_STREAM = "llm.generate.stream"
+    
+    # ASR service requests
+    ASR_TRANSCRIBE_AUDIO = "asr.transcribe.audio"
+    
+    # TTS service requests
+    TTS_SYNTHESIZE_SPEECH = "tts.synthesize.speech"
+
+
+# Backward compatibility alias
+MessageTopic = PubSubTopic
 
 
 @dataclass
@@ -26,7 +44,7 @@ class Message(abc.ABC):
     class for concrete message classes.
     """
 
-    topic: MessageTopic
+    topic: Union[PubSubTopic, RequestTopic]
     data: Dict[str, Any]
     message_id: Optional[str] = None
     timestamp: Optional[datetime] = None
@@ -56,14 +74,145 @@ class UserChatInteractionAddSchema(BaseModel):
 
 class UserChatCreateMessage(Message):
     """User chat create message."""
-    topic: MessageTopic = MessageTopic.USER_CHAT_CREATE
+    topic: PubSubTopic = PubSubTopic.USER_CHAT_CREATE
     data: UserChatCreateSchema
 
 
 class UserChatInteractionAddMessage(Message):
     """User chat interaction add message."""
-    topic: MessageTopic = MessageTopic.USER_CHAT_INTERACTION_ADD
+    topic: PubSubTopic = PubSubTopic.USER_CHAT_INTERACTION_ADD
     data: UserChatInteractionAddSchema
+
+
+# ============================================================================
+# Request/Response Schemas
+# ============================================================================
+
+# LLM service schemas
+class LLMGenerateTextRequestSchema(BaseModel):
+    """Schema for LLM text generation requests."""
+    prompt: str
+    model: Optional[str] = None
+    max_tokens: Optional[int] = None
+    temperature: Optional[float] = None
+    user_id: Optional[str] = None
+
+
+class LLMGenerateTextResponseSchema(BaseModel):
+    """Schema for LLM text generation responses."""
+    success: bool
+    generated_text: Optional[str] = None
+    tokens_used: Optional[int] = None
+    error: Optional[str] = None
+
+
+class LLMGenerateStreamRequestSchema(BaseModel):
+    """Schema for LLM streaming generation requests."""
+    prompt: str
+    model: Optional[str] = None
+    max_tokens: Optional[int] = None
+    temperature: Optional[float] = None
+    user_id: Optional[str] = None
+
+
+class LLMGenerateStreamResponseSchema(BaseModel):
+    """Schema for LLM streaming generation responses."""
+    success: bool
+    stream_url: Optional[str] = None  # WebSocket or streaming endpoint
+    session_id: Optional[str] = None
+    error: Optional[str] = None
+
+
+# ASR service schemas
+class ASRTranscribeRequestSchema(BaseModel):
+    """Schema for ASR transcription requests."""
+    audio_file_path: str  # Path to audio file on shared storage
+    language: Optional[str] = None
+    user_id: Optional[str] = None
+
+
+class ASRTranscribeResponseSchema(BaseModel):
+    """Schema for ASR transcription responses."""
+    success: bool
+    transcription: Optional[str] = None
+    confidence: Optional[float] = None
+    error: Optional[str] = None
+
+
+# TTS service schemas
+class TTSSynthesizeRequestSchema(BaseModel):
+    """Schema for TTS synthesis requests."""
+    text: str
+    voice: Optional[str] = None
+    language: Optional[str] = None
+    speed: Optional[float] = None
+    user_id: Optional[str] = None
+
+
+class TTSSynthesizeResponseSchema(BaseModel):
+    """Schema for TTS synthesis responses."""
+    success: bool
+    audio_path: Optional[str] = None  # Path to generated audio file
+    error: Optional[str] = None
+
+
+# ============================================================================
+# Request/Response Message Classes
+# ============================================================================
+
+# LLM service messages
+class LLMGenerateTextRequestMessage(Message):
+    """LLM generate text request message."""
+    topic: RequestTopic = RequestTopic.LLM_GENERATE_TEXT
+    data: LLMGenerateTextRequestSchema
+
+
+class LLMGenerateTextResponseMessage(Message):
+    """LLM generate text response message."""
+    topic: RequestTopic = RequestTopic.LLM_GENERATE_TEXT
+    data: LLMGenerateTextResponseSchema
+    is_response: bool = True
+
+
+class LLMGenerateStreamRequestMessage(Message):
+    """LLM generate stream request message."""
+    topic: RequestTopic = RequestTopic.LLM_GENERATE_STREAM
+    data: LLMGenerateStreamRequestSchema
+
+
+class LLMGenerateStreamResponseMessage(Message):
+    """LLM generate stream response message."""
+    topic: RequestTopic = RequestTopic.LLM_GENERATE_STREAM
+    data: LLMGenerateStreamResponseSchema
+    is_response: bool = True
+
+
+# ASR service messages
+class ASRTranscribeRequestMessage(Message):
+    """ASR transcribe request message."""
+    topic: RequestTopic = RequestTopic.ASR_TRANSCRIBE_AUDIO
+    data: ASRTranscribeRequestSchema
+
+
+class ASRTranscribeResponseMessage(Message):
+    """ASR transcribe response message."""
+    topic: RequestTopic = RequestTopic.ASR_TRANSCRIBE_AUDIO
+    data: ASRTranscribeResponseSchema
+    is_response: bool = True
+
+
+# TTS service messages
+class TTSSynthesizeRequestMessage(Message):
+    """TTS synthesize request message."""
+    topic: RequestTopic = RequestTopic.TTS_SYNTHESIZE_SPEECH
+    data: TTSSynthesizeRequestSchema
+
+
+class TTSSynthesizeResponseMessage(Message):
+    """TTS synthesize response message."""
+    topic: RequestTopic = RequestTopic.TTS_SYNTHESIZE_SPEECH
+    data: TTSSynthesizeResponseSchema
+    is_response: bool = True
 
 
 # Type alias for message handlers

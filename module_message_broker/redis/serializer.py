@@ -5,7 +5,8 @@ import uuid
 from datetime import datetime
 from typing import Dict
 
-from ..abstract import Message, MessageSerializer
+from ..core.message import Message
+from ..core.interfaces import MessageSerializer
 
 
 class RedisMessageSerializer(MessageSerializer):

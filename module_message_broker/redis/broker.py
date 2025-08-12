@@ -5,7 +5,8 @@ from typing import List, Optional
 import redis.asyncio as redis
 import structlog
 
-from ..abstract import Message, MessageBroker, MessageHandler, RequestHandler
+from ..core.interfaces import MessageBroker, MessageHandler, RequestHandler
+from ..core.message import Message
 from .consumer import RedisConsumer
 from .publisher import RedisPublisher
 from .serializer import RedisMessageSerializer

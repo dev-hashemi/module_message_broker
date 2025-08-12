@@ -24,7 +24,7 @@ await broker.start_listening()
 **Use for:** Events that happened, notifications, loose coupling
 
 ```python
-from module_message_broker.abstract import UserChatCreateMessage, UserChatCreateSchema
+from module_message_broker.schemas.user_schemas import UserChatCreateMessage, UserChatCreateSchema
 
 # 📤 Publish Event
 message = UserChatCreateMessage(
@@ -46,7 +46,7 @@ await broker.subscribe([PubSubTopic.USER_CHAT_CREATE], handle_events)
 **Use for:** Commands that need responses, synchronous processing
 
 ```python
-from module_message_broker.abstract import LLMGenerateTextRequestMessage, LLMGenerateTextRequestSchema
+from module_message_broker.schemas.llm_schemas import LLMGenerateTextRequestMessage, LLMGenerateTextRequestSchema
 
 # 📞 Make Request
 request = LLMGenerateTextRequestMessage(
@@ -106,6 +106,37 @@ broker2 = RedisMessageBroker(redis_client, "llm_service", "worker_2")
 - `LLM_GENERATE_STREAM` - Streaming generation requests  
 - `ASR_TRANSCRIBE_AUDIO` - Audio transcription requests
 - `TTS_SYNTHESIZE_SPEECH` - Speech synthesis requests
+
+## 🏗️ Module Structure
+
+```
+module_message_broker/
+├── core/                    # Core infrastructure
+│   ├── message.py          # Message data structure
+│   └── interfaces.py       # Abstract interfaces
+├── schemas/                 # Message schemas and topics
+│   ├── topics.py           # PubSubTopic, RequestTopic enums
+│   ├── user_schemas.py     # User service messages
+│   ├── llm_schemas.py      # LLM service messages
+│   ├── asr_schemas.py      # ASR service messages
+│   └── tts_schemas.py      # TTS service messages
+└── redis/                   # Redis Streams implementation
+```
+
+## 📦 Import Patterns
+
+```python
+# Core components
+from module_message_broker.core.message import Message
+from module_message_broker.core.interfaces import MessageBroker
+
+# Topics and schemas
+from module_message_broker.schemas.topics import PubSubTopic, RequestTopic
+from module_message_broker.schemas.llm_schemas import LLMGenerateTextRequestSchema
+
+# Redis implementation
+from module_message_broker import RedisMessageBroker
+```
 
 ## ⚠️ Important Notes
 

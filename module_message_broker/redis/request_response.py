@@ -8,7 +8,8 @@ from typing import Dict, List, Optional
 import redis.asyncio as redis
 import structlog
 
-from ..abstract import Message, RequestHandler
+from ..core.message import Message
+from ..core.interfaces import RequestHandler
 from .serializer import RedisMessageSerializer
 
 logger = structlog.get_logger(__name__)

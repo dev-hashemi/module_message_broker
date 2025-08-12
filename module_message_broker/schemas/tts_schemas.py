@@ -1,0 +1,36 @@
+"""TTS service message schemas."""
+
+from typing import Optional
+from pydantic import BaseModel
+
+from ..core.message import Message
+from .topics import RequestTopic
+
+
+class TTSSynthesizeRequestSchema(BaseModel):
+    """Schema for TTS synthesis requests."""
+    text: str
+    voice: Optional[str] = None
+    language: Optional[str] = None
+    speed: Optional[float] = None
+    user_id: Optional[str] = None
+
+
+class TTSSynthesizeResponseSchema(BaseModel):
+    """Schema for TTS synthesis responses."""
+    success: bool
+    audio_path: Optional[str] = None  # Path to generated audio file
+    error: Optional[str] = None
+
+
+class TTSSynthesizeRequestMessage(Message):
+    """TTS synthesize request message."""
+    topic: RequestTopic = RequestTopic.TTS_SYNTHESIZE_SPEECH
+    data: TTSSynthesizeRequestSchema
+
+
+class TTSSynthesizeResponseMessage(Message):
+    """TTS synthesize response message."""
+    topic: RequestTopic = RequestTopic.TTS_SYNTHESIZE_SPEECH
+    data: TTSSynthesizeResponseSchema
+    is_response: bool = True

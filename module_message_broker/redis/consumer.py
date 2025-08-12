@@ -7,7 +7,7 @@ from typing import Dict, List, Optional, Set
 import redis.asyncio as redis
 import structlog
 
-from ..abstract import MessageHandler
+from ..core.interfaces import MessageHandler
 from .serializer import RedisMessageSerializer
 
 logger = structlog.get_logger(__name__)

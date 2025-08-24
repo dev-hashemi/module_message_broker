@@ -5,63 +5,35 @@ from pydantic import BaseModel
 
 from ..core.message import Message
 from .topics import RequestTopic
+ 
 
-
-class LLMGenerateTextRequestSchema(BaseModel):
-    """Schema for LLM text generation requests."""
+class LLMGenerateRequestSchema(BaseModel):
+    """Schema for LLM Generate requests."""
     prompt: str
-    model: Optional[str] = None
+    model: Optional[str] = "tida"
+    user_id: Optional[str] = None
     max_tokens: Optional[int] = None
     temperature: Optional[float] = None
-    user_id: Optional[str] = None
 
 
-class LLMGenerateTextResponseSchema(BaseModel):
-    """Schema for LLM text generation responses."""
+class LLMGenerateResponseSchema(BaseModel):
+    """Schema for LLM Generate responses."""
     success: bool
-    generated_text: Optional[str] = None
+    response_text: Optional[str] = None
+    model_used: Optional[str] = None
+    chat_id: Optional[str] = None
     tokens_used: Optional[int] = None
     error: Optional[str] = None
 
 
-class LLMGenerateStreamRequestSchema(BaseModel):
-    """Schema for LLM streaming generation requests."""
-    prompt: str
-    model: Optional[str] = None
-    max_tokens: Optional[int] = None
-    temperature: Optional[float] = None
-    user_id: Optional[str] = None
-
-
-class LLMGenerateStreamResponseSchema(BaseModel):
-    """Schema for LLM streaming generation responses."""
-    success: bool
-    stream_url: Optional[str] = None  # WebSocket or streaming endpoint
-    session_id: Optional[str] = None
-    error: Optional[str] = None
-
-
-class LLMGenerateTextRequestMessage(Message):
-    """LLM generate text request message."""
+class LLMGenerateRequestMessage(Message):
+    """LLM Generate request message."""
     topic: RequestTopic = RequestTopic.LLM_GENERATE_TEXT
-    data: LLMGenerateTextRequestSchema
+    data: LLMGenerateRequestSchema
 
 
-class LLMGenerateTextResponseMessage(Message):
-    """LLM generate text response message."""
+class LLMGenerateResponseMessage(Message):
+    """LLM Generate response message."""
     topic: RequestTopic = RequestTopic.LLM_GENERATE_TEXT
-    data: LLMGenerateTextResponseSchema
-    is_response: bool = True
-
-
-class LLMGenerateStreamRequestMessage(Message):
-    """LLM generate stream request message."""
-    topic: RequestTopic = RequestTopic.LLM_GENERATE_STREAM
-    data: LLMGenerateStreamRequestSchema
-
-
-class LLMGenerateStreamResponseMessage(Message):
-    """LLM generate stream response message."""
-    topic: RequestTopic = RequestTopic.LLM_GENERATE_STREAM
-    data: LLMGenerateStreamResponseSchema
+    data: LLMGenerateResponseSchema
     is_response: bool = True

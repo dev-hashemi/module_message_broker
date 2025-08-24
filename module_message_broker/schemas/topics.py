@@ -16,8 +16,7 @@ class RequestTopic(str, Enum):
     
     # LLM service requests
     LLM_GENERATE_TEXT = "llm.generate.text"
-    LLM_GENERATE_STREAM = "llm.generate.stream"
-    
+
     # ASR service requests
     ASR_TRANSCRIBE_AUDIO = "asr.transcribe.audio"
     

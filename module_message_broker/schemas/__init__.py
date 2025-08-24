@@ -10,10 +10,8 @@ from .user_schemas import (
 )
 
 from .llm_schemas import (
-    LLMGenerateTextRequestSchema,
-    LLMGenerateTextResponseSchema,
-    LLMGenerateStreamRequestSchema,
-    LLMGenerateStreamResponseSchema
+    LLMGenerateRequestSchema,
+    LLMGenerateResponseSchema
 )
 
 from .asr_schemas import (
@@ -33,10 +31,8 @@ from .user_schemas import (
 )
 
 from .llm_schemas import (
-    LLMGenerateTextRequestMessage,
-    LLMGenerateTextResponseMessage,
-    LLMGenerateStreamRequestMessage,
-    LLMGenerateStreamResponseMessage
+    LLMGenerateRequestMessage,
+    LLMGenerateResponseMessage
 )
 
 from .asr_schemas import (
@@ -61,14 +57,10 @@ __all__ = [
     "UserChatInteractionAddMessage",
     
     # LLM schemas
-    "LLMGenerateTextRequestSchema",
-    "LLMGenerateTextResponseSchema",
-    "LLMGenerateStreamRequestSchema", 
-    "LLMGenerateStreamResponseSchema",
-    "LLMGenerateTextRequestMessage",
-    "LLMGenerateTextResponseMessage",
-    "LLMGenerateStreamRequestMessage",
-    "LLMGenerateStreamResponseMessage",
+    "LLMGenerateRequestSchema",
+    "LLMGenerateResponseSchema",
+    "LLMGenerateRequestMessage",
+    "LLMGenerateResponseMessage",
     
     # ASR schemas
     "ASRTranscribeRequestSchema",

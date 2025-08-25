@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "module_message_broker"
-version = "0.2.4"
+version = "0.2.5"
 description = "Message broker module"
 requires-python = ">=3.8"
 dependencies = ["structlog>=25.4.0", "redis>=6.2.0"]

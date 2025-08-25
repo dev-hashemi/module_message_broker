@@ -4,11 +4,6 @@
 from .topics import PubSubTopic, RequestTopic
 
 # Import schema classes (depend on topics but not on message classes)
-from .user_schemas import (
-    UserChatCreateSchema,
-    UserChatInteractionAddSchema
-)
-
 from .llm_schemas import (
     LLMGenerateRequestSchema,
     LLMGenerateResponseSchema
@@ -25,11 +20,6 @@ from .tts_schemas import (
 )
 
 # Import message classes last (depend on both topics and core.message)
-from .user_schemas import (
-    UserChatCreateMessage,
-    UserChatInteractionAddMessage
-)
-
 from .llm_schemas import (
     LLMGenerateRequestMessage,
     LLMGenerateResponseMessage,
@@ -50,12 +40,6 @@ __all__ = [
     # Topics
     "PubSubTopic",
     "RequestTopic",
-    
-    # User schemas
-    "UserChatCreateSchema",
-    "UserChatInteractionAddSchema", 
-    "UserChatCreateMessage",
-    "UserChatInteractionAddMessage",
     
     # LLM schemas
     "LLMGenerateRequestSchema",

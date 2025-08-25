@@ -32,7 +32,8 @@ from .user_schemas import (
 
 from .llm_schemas import (
     LLMGenerateRequestMessage,
-    LLMGenerateResponseMessage
+    LLMGenerateResponseMessage,
+    LLMGenerateMultipartResponseMessage
 )
 
 from .asr_schemas import (
@@ -61,6 +62,7 @@ __all__ = [
     "LLMGenerateResponseSchema",
     "LLMGenerateRequestMessage",
     "LLMGenerateResponseMessage",
+    "LLMGenerateMultipartResponseMessage",
     
     # ASR schemas
     "ASRTranscribeRequestSchema",

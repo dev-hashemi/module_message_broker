@@ -39,6 +39,10 @@ class RedisMessageSerializer(MessageSerializer):
             # Redis streams require string values
             if isinstance(value, (dict, list)):
                 fields[key] = json.dumps(value)
+            elif isinstance(value, (bool, int, float)):
+                # Store type information for proper deserialization
+                fields[f"_type_{key}"] = type(value).__name__
+                fields[key] = str(value)
             elif value is not None:
                 fields[key] = str(value)
 
@@ -88,21 +92,51 @@ class RedisMessageSerializer(MessageSerializer):
             "reply_to",
             "is_response",
         }
+        type_fields = {}
+        
+        # First pass: collect type information
         for key, value in data.items():
-            if key not in reserved_fields:
+            if isinstance(key, bytes):
+                key = key.decode("utf-8")
+            if key.startswith("_type_"):
+                field_name = key[6:]  # Remove "_type_" prefix
+                if isinstance(value, bytes):
+                    value = value.decode("utf-8")
+                type_fields[field_name] = value
+        
+        # Second pass: process data fields with type conversion
+        for key, value in data.items():
+            if isinstance(key, bytes):
+                key = key.decode("utf-8")
+                
+            if key not in reserved_fields and not key.startswith("_type_"):
                 # Convert bytes to string if needed
                 if isinstance(value, bytes):
                     value = value.decode("utf-8")
-                if isinstance(key, bytes):
-                    key = key.decode("utf-8")
 
-                # Try to parse JSON values
+                # Try to parse JSON values first
                 try:
                     if value and (value.startswith("{") or value.startswith("[")):
                         message_data[key] = json.loads(value)
-                    else:
-                        message_data[key] = value
+                        continue
                 except (json.JSONDecodeError, AttributeError):
+                    pass
+                
+                # Apply type conversion if type info is available
+                if key in type_fields:
+                    type_name = type_fields[key]
+                    try:
+                        if type_name == "bool":
+                            message_data[key] = value.lower() == "true"
+                        elif type_name == "int":
+                            message_data[key] = int(value)
+                        elif type_name == "float":
+                            message_data[key] = float(value)
+                        else:
+                            message_data[key] = value
+                    except (ValueError, AttributeError):
+                        message_data[key] = value
+                else:
                     message_data[key] = value
 
         return Message(

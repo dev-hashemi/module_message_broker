@@ -6,13 +6,33 @@ import redis.asyncio as redis
 from module_message_broker import RedisMessageBroker
 
 
+async def _cleanup_test_streams(redis_client):
+    """Helper to clean up test streams and consumer groups."""
+    test_topics = [
+        "llm.request", "llm.response", "asr.request", "asr.response",
+        "tts.request", "tts.response", "llm.completion", "user.event"
+    ]
+    
+    for topic in test_topics:
+        try:
+            # Delete the stream (removes all messages and consumer groups)
+            await redis_client.delete(topic)
+        except Exception:
+            # Stream might not exist, ignore errors
+            pass
+
+
 @pytest_asyncio.fixture
 async def redis_client():
     """Create Redis client for testing."""
     client = redis.Redis(host='localhost', port=6379, decode_responses=True)
     try:
         await client.ping()
+        # Clean up before tests
+        await _cleanup_test_streams(client)
         yield client
+        # Clean up after tests 
+        await _cleanup_test_streams(client)
     except redis.ConnectionError:
         pytest.skip("Redis not available")
     finally:

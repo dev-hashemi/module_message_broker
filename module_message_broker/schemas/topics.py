@@ -14,12 +14,9 @@ class PubSubTopic(str, Enum):
     LLM_REQUEST = "llm.request"
     LLM_RESPONSE = "llm.response"
     
-    # User service topics (for tests)
-    USER_CHAT_CREATE = "user.chat.create"
-    USER_CHAT_INTERACTION_ADD = "user.chat.interaction.add"
 
 
-class RequestTopic(str, Enum):
+class ReqResTopic(str, Enum):
     """Request/Response topics for synchronous inter-service communication."""
 
     # LLM service requests

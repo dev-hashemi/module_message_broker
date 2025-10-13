@@ -1,7 +1,7 @@
 """Message schemas for inter-service communication."""
 
 # Import topics first (no dependencies)
-from .topics import PubSubTopic, RequestTopic
+from .topics import PubSubTopic, ReqResTopic
 
 # Import schema classes (depend on topics but not on message classes)
 from .llm_schemas import (
@@ -39,7 +39,7 @@ from .tts_schemas import (
 __all__ = [
     # Topics
     "PubSubTopic",
-    "RequestTopic",
+    "ReqResTopic",
     
     # LLM schemas
     "LLMGenerateRequestSchema",

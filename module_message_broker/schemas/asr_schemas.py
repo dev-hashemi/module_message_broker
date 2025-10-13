@@ -4,7 +4,7 @@ from typing import Optional
 from pydantic import BaseModel, field_validator
 
 from ..core.message import Message
-from .topics import RequestTopic
+from .topics import ReqResTopic
 
 
 class ASRTranscribeRequestSchema(BaseModel):
@@ -24,7 +24,7 @@ class ASRTranscribeResponseSchema(BaseModel):
 
 class ASRTranscribeRequestMessage(Message):
     """ASR transcribe request message."""
-    topic: RequestTopic = RequestTopic.ASR_TRANSCRIBE_AUDIO
+    topic: ReqResTopic = ReqResTopic.ASR_TRANSCRIBE_AUDIO
     
     @field_validator('data', mode='before')
     @classmethod
@@ -36,7 +36,7 @@ class ASRTranscribeRequestMessage(Message):
 
 class ASRTranscribeResponseMessage(Message):
     """ASR transcribe response message."""
-    topic: RequestTopic = RequestTopic.ASR_TRANSCRIBE_AUDIO
+    topic: ReqResTopic = ReqResTopic.ASR_TRANSCRIBE_AUDIO
     is_response: bool = True
     
     @field_validator('data', mode='before')

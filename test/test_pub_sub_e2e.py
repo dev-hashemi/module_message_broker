@@ -17,14 +17,14 @@ class TestAsyncPubSub:
             received_messages.append(message)
         
         # Subscribe to topic
-        await subscriber_broker.subscribe([PubSubTopic.USER_CHAT_CREATE], message_handler)
+        await subscriber_broker.subscribe([PubSubTopic.LLM_REQUEST], message_handler)
         
         # Give time for subscription to be ready
         await asyncio.sleep(0.5)
         
         # Publish message
         test_message = Message(
-            topic=PubSubTopic.USER_CHAT_CREATE,
+            topic=PubSubTopic.LLM_REQUEST,
             data={"user_id": "123", "action": "test"}
         )
         await publisher_broker.publish(test_message)
@@ -45,13 +45,13 @@ class TestAsyncPubSub:
         async def message_handler(message: Message):
             received_messages.append(message)
         
-        await subscriber_broker.subscribe([PubSubTopic.USER_CHAT_CREATE], message_handler)
+        await subscriber_broker.subscribe([PubSubTopic.LLM_REQUEST], message_handler)
         await asyncio.sleep(0.5)
         
         # Publish multiple messages
         for i in range(3):
             test_message = Message(
-                topic=PubSubTopic.USER_CHAT_CREATE,
+                topic=PubSubTopic.LLM_REQUEST,
                 data={"user_id": f"user_{i}", "index": i}
             )
             await publisher_broker.publish(test_message)
@@ -85,13 +85,13 @@ class TestAsyncPubSub:
             async def handler_2(message: Message):
                 received_messages_2.append(message)
             
-            await sub1.subscribe([PubSubTopic.USER_CHAT_CREATE], handler_1)
-            await sub2.subscribe([PubSubTopic.USER_CHAT_CREATE], handler_2)
+            await sub1.subscribe([PubSubTopic.LLM_REQUEST], handler_1)
+            await sub2.subscribe([PubSubTopic.LLM_REQUEST], handler_2)
             await asyncio.sleep(0.5)
             
             # Publish message
             test_message = Message(
-                topic=PubSubTopic.USER_CHAT_CREATE,
+                topic=PubSubTopic.LLM_REQUEST,
                 data={"broadcast": "test"}
             )
             await publisher_broker.publish(test_message)
@@ -117,24 +117,24 @@ class TestAsyncPubSub:
             received_messages.append(message)
         
         # Subscribe to topic
-        await subscriber_broker.subscribe([PubSubTopic.USER_CHAT_CREATE], message_handler)
+        await subscriber_broker.subscribe([PubSubTopic.LLM_REQUEST], message_handler)
         await asyncio.sleep(0.5)
         
         # Publish first message
         test_message_1 = Message(
-            topic=PubSubTopic.USER_CHAT_CREATE,
+            topic=PubSubTopic.LLM_REQUEST,
             data={"message": "first"}
         )
         await publisher_broker.publish(test_message_1)
         await asyncio.sleep(1)
         
         # Unsubscribe
-        await subscriber_broker.unsubscribe([PubSubTopic.USER_CHAT_CREATE])
+        await subscriber_broker.unsubscribe([PubSubTopic.LLM_REQUEST])
         await asyncio.sleep(0.5)
         
         # Publish second message (should not be received)
         test_message_2 = Message(
-            topic=PubSubTopic.USER_CHAT_CREATE,
+            topic=PubSubTopic.LLM_REQUEST,
             data={"message": "second"}
         )
         await publisher_broker.publish(test_message_2)
@@ -152,7 +152,7 @@ class TestAsyncPubSub:
         async def message_handler(message: Message):
             received_messages.append(message)
         
-        await subscriber_broker.subscribe([PubSubTopic.USER_CHAT_CREATE], message_handler)
+        await subscriber_broker.subscribe([PubSubTopic.LLM_REQUEST], message_handler)
         await asyncio.sleep(0.5)
         
         # Publish message with complex data
@@ -177,7 +177,7 @@ class TestAsyncPubSub:
         }
         
         test_message = Message(
-            topic=PubSubTopic.USER_CHAT_CREATE,
+            topic=PubSubTopic.LLM_REQUEST,
             data=complex_data
         )
         await publisher_broker.publish(test_message)

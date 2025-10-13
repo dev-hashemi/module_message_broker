@@ -6,7 +6,7 @@ from pydantic import BaseModel, field_validator
 
 from ..core.message import Message
 from ..core.multipart_message import MultipartMessage
-from .topics import RequestTopic
+from .topics import ReqResTopic
 
 
 class LLMGenerateRequestSchema(BaseModel):
@@ -34,7 +34,7 @@ class LLMGenerateResponseSchema(BaseModel):
 class LLMGenerateRequestMessage(Message):
     """LLM Generate request message."""
 
-    topic: RequestTopic = RequestTopic.LLM_GENERATE_TEXT
+    topic: ReqResTopic = ReqResTopic.LLM_GENERATE_TEXT
     
     @field_validator('data', mode='before')
     @classmethod
@@ -47,7 +47,7 @@ class LLMGenerateRequestMessage(Message):
 class LLMGenerateResponseMessage(Message):
     """LLM Generate response message."""
 
-    topic: RequestTopic = RequestTopic.LLM_GENERATE_TEXT
+    topic: ReqResTopic = ReqResTopic.LLM_GENERATE_TEXT
     is_response: bool = True
     
     @field_validator('data', mode='before')
@@ -61,7 +61,7 @@ class LLMGenerateResponseMessage(Message):
 class LLMGenerateMultipartResponseMessage(MultipartMessage):
     """LLM Generate Multipart response message."""
 
-    topic: RequestTopic = RequestTopic.LLM_GENERATE_TEXT
+    topic: ReqResTopic = ReqResTopic.LLM_GENERATE_TEXT
     
     @field_validator('data', mode='before')
     @classmethod

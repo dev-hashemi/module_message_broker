@@ -69,7 +69,7 @@ class RedisConsumer:
                 await redis_client.xgroup_create(
                     topic,
                     self._consumer_group,
-                    id="0",  # Start from beginning of stream
+                    id="$",  # Start from end of stream (only new messages)
                     mkstream=True,  # Create stream if it doesn't exist
                 )
                 logger.info(
@@ -189,6 +189,11 @@ class RedisConsumer:
                     entries = stream_data[1]  # List of [id, fields] entries
 
                     for entry_id, fields in entries:
+                        # Skip initialization messages
+                        if fields.get("_init"):
+                            await redis_client.xack(topic, self._consumer_group, entry_id)
+                            continue
+                            
                         # Use serializer to convert Redis entry to Message object
                         message = self._serializer.deserialize(topic, entry_id, fields)
 

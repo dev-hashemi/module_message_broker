@@ -1,21 +1,18 @@
 """Core message data structure for inter-service communication."""
 
-import abc
-from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional
+from pydantic import BaseModel, Field, model_validator
 
 
-@dataclass
-class Message(abc.ABC):
+class Message(BaseModel):
     """Message data structure for inter-service communication.
     
-    This class is an abstract base class that defines the structure of a message.
-    It is not intended to be instantiated directly, but rather to be used as a base
-    class for concrete message classes.
+    This class is a Pydantic model that defines the structure of a message.
+    It can be used as a base class for concrete message classes or instantiated directly.
     """
 
-    topic: Union[str, Any]  # Can be string or topic enum
+    topic: str  # Only string type allowed for topic
     data: Dict[str, Any]
     message_id: Optional[str] = None
     timestamp: Optional[datetime] = None
@@ -23,7 +20,11 @@ class Message(abc.ABC):
     reply_to: Optional[str] = None
     is_response: bool = False
 
-    def __post_init__(self):
-        """Initialize default values."""
-        if self.timestamp is None:
-            self.timestamp = datetime.now(timezone.utc)
+    @model_validator(mode='before')
+    @classmethod
+    def set_default_timestamp(cls, values):
+        """Set default timestamp if not provided."""
+        if isinstance(values, dict):
+            if values.get('timestamp') is None:
+                values['timestamp'] = datetime.now(timezone.utc)
+        return values

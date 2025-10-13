@@ -1,8 +1,8 @@
 """LLM service message schemas."""
 
-from typing import Optional
+from typing import Optional, Any, Dict
 
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 from ..core.message import Message
 from ..core.multipart_message import MultipartMessage
@@ -35,19 +35,37 @@ class LLMGenerateRequestMessage(Message):
     """LLM Generate request message."""
 
     topic: RequestTopic = RequestTopic.LLM_GENERATE_TEXT
-    data: LLMGenerateRequestSchema
+    
+    @field_validator('data', mode='before')
+    @classmethod
+    def validate_data(cls, v):
+        if isinstance(v, LLMGenerateRequestSchema):
+            return v.model_dump()
+        return v
 
 
 class LLMGenerateResponseMessage(Message):
     """LLM Generate response message."""
 
     topic: RequestTopic = RequestTopic.LLM_GENERATE_TEXT
-    data: LLMGenerateResponseSchema
     is_response: bool = True
+    
+    @field_validator('data', mode='before')
+    @classmethod
+    def validate_data(cls, v):
+        if isinstance(v, LLMGenerateResponseSchema):
+            return v.model_dump()
+        return v
 
 
 class LLMGenerateMultipartResponseMessage(MultipartMessage):
     """LLM Generate Multipart response message."""
 
     topic: RequestTopic = RequestTopic.LLM_GENERATE_TEXT
-    data: LLMGenerateResponseSchema
+    
+    @field_validator('data', mode='before')
+    @classmethod
+    def validate_data(cls, v):
+        if isinstance(v, LLMGenerateResponseSchema):
+            return v.model_dump()
+        return v

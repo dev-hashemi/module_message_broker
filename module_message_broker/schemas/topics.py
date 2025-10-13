@@ -13,6 +13,10 @@ class PubSubTopic(str, Enum):
     TTS_RESPONSE = "tts.response"
     LLM_REQUEST = "llm.request"
     LLM_RESPONSE = "llm.response"
+    
+    # User service topics (for tests)
+    USER_CHAT_CREATE = "user.chat.create"
+    USER_CHAT_INTERACTION_ADD = "user.chat.interaction.add"
 
 
 class RequestTopic(str, Enum):
@@ -26,3 +30,5 @@ class RequestTopic(str, Enum):
 
     # TTS service requests
     TTS_SYNTHESIZE_SPEECH = "tts.synthesize.speech"
+
+

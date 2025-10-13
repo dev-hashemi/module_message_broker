@@ -2,7 +2,7 @@
 
 import asyncio
 import pytest
-from module_message_broker import RedisMessageBroker, Message, MessageTopic
+from module_message_broker import RedisMessageBroker, Message, PubSubTopic
 
 
 class TestSyncRequestResponse:
@@ -15,17 +15,17 @@ class TestSyncRequestResponse:
         async def request_handler(request: Message) -> Message:
             user_id = request.data.get("user_id")
             return Message(
-                topic=MessageTopic.USER_CHAT_CREATE,
+                topic=PubSubTopic.USER_CHAT_CREATE,
                 data={"user_id": user_id, "name": f"User {user_id}", "status": "active"}
             )
         
         # Register request handler
-        await server_broker.handle_requests([MessageTopic.USER_CHAT_CREATE], request_handler)
+        await server_broker.handle_requests([PubSubTopic.USER_CHAT_CREATE], request_handler)
         await asyncio.sleep(0.5)
         
         # Send request
         request = Message(
-            topic=MessageTopic.USER_CHAT_CREATE,
+            topic=PubSubTopic.USER_CHAT_CREATE,
             data={"user_id": "123"}
         )
         
@@ -44,7 +44,7 @@ class TestSyncRequestResponse:
         
         # Send request to non-existent topic
         request = Message(
-            topic=MessageTopic.USER_CHAT_INTERACTION_ADD,  # Different topic
+            topic=PubSubTopic.USER_CHAT_INTERACTION_ADD,  # Different topic
             data={"test": "timeout"}
         )
         
@@ -60,18 +60,18 @@ class TestSyncRequestResponse:
             await asyncio.sleep(0.1)
             user_id = request.data.get("user_id")
             return Message(
-                topic=MessageTopic.USER_CHAT_CREATE,
+                topic=PubSubTopic.USER_CHAT_CREATE,
                 data={"user_id": user_id, "processed": True}
             )
         
-        await server_broker.handle_requests([MessageTopic.USER_CHAT_CREATE], request_handler)
+        await server_broker.handle_requests([PubSubTopic.USER_CHAT_CREATE], request_handler)
         await asyncio.sleep(0.5)
         
         # Send multiple concurrent requests
         tasks = []
         for i in range(5):
             request = Message(
-                topic=MessageTopic.USER_CHAT_CREATE,
+                topic=PubSubTopic.USER_CHAT_CREATE,
                 data={"user_id": f"user_{i}"}
             )
             tasks.append(client_broker.request(request, timeout=5.0))
@@ -94,7 +94,7 @@ class TestSyncRequestResponse:
             total = sum(item["price"] * item["quantity"] for item in order_data["items"])
             
             return Message(
-                topic=MessageTopic.USER_CHAT_CREATE,
+                topic=PubSubTopic.USER_CHAT_CREATE,
                 data={
                     "order_id": order_data["id"],
                     "total": total,
@@ -103,12 +103,12 @@ class TestSyncRequestResponse:
                 }
             )
         
-        await server_broker.handle_requests([MessageTopic.USER_CHAT_CREATE], request_handler)
+        await server_broker.handle_requests([PubSubTopic.USER_CHAT_CREATE], request_handler)
         await asyncio.sleep(0.5)
         
         # Send request with complex data
         request = Message(
-            topic=MessageTopic.USER_CHAT_CREATE,
+            topic=PubSubTopic.USER_CHAT_CREATE,
             data={
                 "order": {
                     "id": "order_123",
@@ -138,16 +138,16 @@ class TestSyncRequestResponse:
                 raise ValueError("Simulated error")
             
             return Message(
-                topic=MessageTopic.USER_CHAT_CREATE,
+                topic=PubSubTopic.USER_CHAT_CREATE,
                 data={"result": "success", "action": action}
             )
         
-        await server_broker.handle_requests([MessageTopic.USER_CHAT_CREATE], failing_request_handler)
+        await server_broker.handle_requests([PubSubTopic.USER_CHAT_CREATE], failing_request_handler)
         await asyncio.sleep(0.5)
         
         # Send successful request
         success_request = Message(
-            topic=MessageTopic.USER_CHAT_CREATE,
+            topic=PubSubTopic.USER_CHAT_CREATE,
             data={"action": "success"}
         )
         
@@ -171,29 +171,29 @@ class TestSyncRequestResponse:
             # Handler for USER_CHAT_CREATE
             async def user_handler(request: Message) -> Message:
                 return Message(
-                    topic=MessageTopic.USER_CHAT_CREATE,
+                    topic=PubSubTopic.USER_CHAT_CREATE,
                     data={"service": "user", "data": request.data}
                 )
             
             # Handler for USER_CHAT_INTERACTION_ADD
             async def interaction_handler(request: Message) -> Message:
                 return Message(
-                    topic=MessageTopic.USER_CHAT_INTERACTION_ADD,
+                    topic=PubSubTopic.USER_CHAT_INTERACTION_ADD,
                     data={"service": "interaction", "data": request.data}
                 )
             
-            await server1.handle_requests([MessageTopic.USER_CHAT_CREATE], user_handler)
-            await server2.handle_requests([MessageTopic.USER_CHAT_INTERACTION_ADD], interaction_handler)
+            await server1.handle_requests([PubSubTopic.USER_CHAT_CREATE], user_handler)
+            await server2.handle_requests([PubSubTopic.USER_CHAT_INTERACTION_ADD], interaction_handler)
             await asyncio.sleep(0.5)
             
             # Send requests to both handlers
             user_request = Message(
-                topic=MessageTopic.USER_CHAT_CREATE,
+                topic=PubSubTopic.USER_CHAT_CREATE,
                 data={"type": "user_request"}
             )
             
             interaction_request = Message(
-                topic=MessageTopic.USER_CHAT_INTERACTION_ADD,
+                topic=PubSubTopic.USER_CHAT_INTERACTION_ADD,
                 data={"type": "interaction_request"}
             )
             
@@ -233,28 +233,28 @@ class TestMixedPatterns:
             async def event_handler(message: Message):
                 events_received.append(message)
             
-            await service_broker.subscribe([MessageTopic.USER_CHAT_INTERACTION_ADD], event_handler)
+            await service_broker.subscribe([PubSubTopic.USER_CHAT_INTERACTION_ADD], event_handler)
             
             # Setup sync request handler
             async def request_handler(request: Message) -> Message:
                 return Message(
-                    topic=MessageTopic.USER_CHAT_CREATE,
+                    topic=PubSubTopic.USER_CHAT_CREATE,
                     data={"echo": request.data, "processed": True}
                 )
             
-            await service_broker.handle_requests([MessageTopic.USER_CHAT_CREATE], request_handler)
+            await service_broker.handle_requests([PubSubTopic.USER_CHAT_CREATE], request_handler)
             await asyncio.sleep(0.5)
             
             # Test async pub/sub
             event = Message(
-                topic=MessageTopic.USER_CHAT_INTERACTION_ADD,
+                topic=PubSubTopic.USER_CHAT_INTERACTION_ADD,
                 data={"event": "user_action"}
             )
             await client_broker.publish(event)
             
             # Test sync request/response
             request = Message(
-                topic=MessageTopic.USER_CHAT_CREATE,
+                topic=PubSubTopic.USER_CHAT_CREATE,
                 data={"request": "get_data"}
             )
             response = await client_broker.request(request, timeout=5.0)
@@ -294,28 +294,28 @@ class TestMixedPatterns:
             async def pub_sub_handler(message: Message):
                 pub_sub_messages.append(message)
             
-            await subscriber.subscribe([MessageTopic.USER_CHAT_CREATE], pub_sub_handler)
+            await subscriber.subscribe([PubSubTopic.USER_CHAT_CREATE], pub_sub_handler)
             
             # Setup request/response
             async def request_handler(request: Message) -> Message:
                 return Message(
-                    topic=MessageTopic.USER_CHAT_CREATE,
+                    topic=PubSubTopic.USER_CHAT_CREATE,
                     data={"response_to": request.data}
                 )
             
-            await server.handle_requests([MessageTopic.USER_CHAT_CREATE], request_handler)
+            await server.handle_requests([PubSubTopic.USER_CHAT_CREATE], request_handler)
             await asyncio.sleep(0.5)
             
             # Send pub/sub message
             pub_message = Message(
-                topic=MessageTopic.USER_CHAT_CREATE,
+                topic=PubSubTopic.USER_CHAT_CREATE,
                 data={"type": "pub_sub", "content": "broadcast"}
             )
             await publisher.publish(pub_message)
             
             # Send request/response
             request_message = Message(
-                topic=MessageTopic.USER_CHAT_CREATE,
+                topic=PubSubTopic.USER_CHAT_CREATE,
                 data={"type": "request", "content": "query"}
             )
             response = await client.request(request_message, timeout=5.0)

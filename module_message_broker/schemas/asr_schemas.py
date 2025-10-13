@@ -1,7 +1,7 @@
 """ASR service message schemas."""
 
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 from ..core.message import Message
 from .topics import RequestTopic
@@ -25,11 +25,23 @@ class ASRTranscribeResponseSchema(BaseModel):
 class ASRTranscribeRequestMessage(Message):
     """ASR transcribe request message."""
     topic: RequestTopic = RequestTopic.ASR_TRANSCRIBE_AUDIO
-    data: ASRTranscribeRequestSchema
+    
+    @field_validator('data', mode='before')
+    @classmethod
+    def validate_data(cls, v):
+        if isinstance(v, ASRTranscribeRequestSchema):
+            return v.model_dump()
+        return v
 
 
 class ASRTranscribeResponseMessage(Message):
     """ASR transcribe response message."""
     topic: RequestTopic = RequestTopic.ASR_TRANSCRIBE_AUDIO
-    data: ASRTranscribeResponseSchema
     is_response: bool = True
+    
+    @field_validator('data', mode='before')
+    @classmethod
+    def validate_data(cls, v):
+        if isinstance(v, ASRTranscribeResponseSchema):
+            return v.model_dump()
+        return v

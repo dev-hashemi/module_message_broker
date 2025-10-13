@@ -1,10 +1,10 @@
 """TTS service message schemas."""
 
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 from ..core.message import Message
-from .topics import RequestTopic
+from .topics import ReqResTopic
 
 
 class TTSSynthesizeRequestSchema(BaseModel):
@@ -25,12 +25,24 @@ class TTSSynthesizeResponseSchema(BaseModel):
 
 class TTSSynthesizeRequestMessage(Message):
     """TTS synthesize request message."""
-    topic: RequestTopic = RequestTopic.TTS_SYNTHESIZE_SPEECH
-    data: TTSSynthesizeRequestSchema
+    topic: ReqResTopic = ReqResTopic.TTS_SYNTHESIZE_SPEECH
+    
+    @field_validator('data', mode='before')
+    @classmethod
+    def validate_data(cls, v):
+        if isinstance(v, TTSSynthesizeRequestSchema):
+            return v.model_dump()
+        return v
 
 
 class TTSSynthesizeResponseMessage(Message):
     """TTS synthesize response message."""
-    topic: RequestTopic = RequestTopic.TTS_SYNTHESIZE_SPEECH
-    data: TTSSynthesizeResponseSchema
+    topic: ReqResTopic = ReqResTopic.TTS_SYNTHESIZE_SPEECH
     is_response: bool = True
+    
+    @field_validator('data', mode='before')
+    @classmethod
+    def validate_data(cls, v):
+        if isinstance(v, TTSSynthesizeResponseSchema):
+            return v.model_dump()
+        return v

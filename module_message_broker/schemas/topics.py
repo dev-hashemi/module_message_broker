@@ -13,9 +13,10 @@ class PubSubTopic(str, Enum):
     TTS_RESPONSE = "tts.response"
     LLM_REQUEST = "llm.request"
     LLM_RESPONSE = "llm.response"
+    
 
 
-class RequestTopic(str, Enum):
+class ReqResTopic(str, Enum):
     """Request/Response topics for synchronous inter-service communication."""
 
     # LLM service requests
@@ -26,3 +27,5 @@ class RequestTopic(str, Enum):
 
     # TTS service requests
     TTS_SYNTHESIZE_SPEECH = "tts.synthesize.speech"
+
+

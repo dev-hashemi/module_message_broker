@@ -19,6 +19,10 @@ from .tts_schemas import (
     TTSSynthesizeResponseSchema
 )
 
+from .user_schemas import (
+    UserDeletedEventSchema
+)
+
 # Import message classes last (depend on both topics and core.message)
 from .llm_schemas import (
     LLMGenerateRequestMessage,
@@ -34,6 +38,10 @@ from .asr_schemas import (
 from .tts_schemas import (
     TTSSynthesizeRequestMessage,
     TTSSynthesizeResponseMessage
+)
+
+from .user_schemas import (
+    UserDeletedEventMessage
 )
 
 __all__ = [
@@ -58,5 +66,9 @@ __all__ = [
     "TTSSynthesizeRequestSchema",
     "TTSSynthesizeResponseSchema",
     "TTSSynthesizeRequestMessage", 
-    "TTSSynthesizeResponseMessage"
+    "TTSSynthesizeResponseMessage",
+    
+    # User schemas
+    "UserDeletedEventSchema",
+    "UserDeletedEventMessage"
 ]

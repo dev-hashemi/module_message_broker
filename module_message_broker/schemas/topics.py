@@ -14,6 +14,9 @@ class PubSubTopic(str, Enum):
     LLM_REQUEST = "llm.request"
     LLM_RESPONSE = "llm.response"
     
+    # User service events
+    USER_SOFT_DELETED = "user.soft_deleted"
+    
 
 
 class ReqResTopic(str, Enum):

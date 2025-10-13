@@ -10,12 +10,25 @@ async def _cleanup_test_streams(redis_client):
     """Helper to clean up test streams and consumer groups."""
     test_topics = [
         "llm.request", "llm.response", "asr.request", "asr.response",
-        "tts.request", "tts.response", "llm.completion", "user.event"
+        "tts.request", "tts.response", "llm.generate.text"
     ]
     
     for topic in test_topics:
         try:
-            # Delete the stream (removes all messages and consumer groups)
+            # Get all consumer groups for this stream
+            try:
+                groups = await redis_client.xinfo_groups(topic)
+                for group_info in groups:
+                    group_name = group_info['name']
+                    try:
+                        # Delete the consumer group
+                        await redis_client.xgroup_destroy(topic, group_name)
+                    except Exception:
+                        pass  # Group might not exist
+            except Exception:
+                pass  # Stream might not exist
+            
+            # Delete the stream (removes all messages)
             await redis_client.delete(topic)
         except Exception:
             # Stream might not exist, ignore errors

@@ -69,7 +69,7 @@ class RedisConsumer:
                 await redis_client.xgroup_create(
                     topic,
                     self._consumer_group,
-                    id="$",  # Start from end of stream (only new messages)
+                    id="0",  # Start from beginning of stream
                     mkstream=True,  # Create stream if it doesn't exist
                 )
                 logger.info(

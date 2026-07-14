@@ -1,7 +1,7 @@
 """Redis Streams publisher implementation."""
 
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 import redis.asyncio as redis
@@ -50,7 +50,7 @@ class RedisPublisher:
 
         # Ensure message has timestamp
         if message.timestamp is None:
-            message.timestamp = datetime.utcnow()
+            message.timestamp = datetime.now(timezone.utc)
 
         # Use serializer to convert message to Redis format
         fields = self._serializer.serialize(message)

@@ -2,7 +2,7 @@
 
 import json
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict
 
 from ..core.message import Message
@@ -24,7 +24,7 @@ class RedisMessageSerializer(MessageSerializer):
         # Prepare fields for Redis stream
         fields: Dict[str, str] = {
             "id": message.message_id or str(uuid.uuid4()),
-            "timestamp": message.timestamp.isoformat(),
+            "timestamp": message.timestamp.isoformat() if message.timestamp else datetime.now(timezone.utc).isoformat(),
             "is_response": str(message.is_response),
         }
 
@@ -68,7 +68,7 @@ class RedisMessageSerializer(MessageSerializer):
         try:
             timestamp = datetime.fromisoformat(timestamp_str) if timestamp_str else None
         except ValueError:
-            timestamp = datetime.utcnow()
+            timestamp = datetime.now(timezone.utc)
 
         # Parse request/response fields
         correlation_id = data.get("correlation_id") or data.get(b"correlation_id")

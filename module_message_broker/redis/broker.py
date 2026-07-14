@@ -45,11 +45,12 @@ class RedisMessageBroker(MessageBroker):
             consumer_name=consumer_name,
         )
         
+        reqres_consumer_name = f"{consumer_name or self._consumer._consumer_name}-reqres"
         self._request_response = RedisRequestResponseHandler(
             redis_client=redis_client,
             serializer=self._serializer,
             consumer_group=consumer_group,
-            consumer_name=consumer_name or self._consumer._consumer_name,
+            consumer_name=reqres_consumer_name,
         )
 
     async def publish(self, message: Message) -> None:

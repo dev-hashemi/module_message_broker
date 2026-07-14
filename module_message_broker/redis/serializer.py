@@ -38,6 +38,7 @@ class RedisMessageSerializer(MessageSerializer):
         for key, value in message.data.items():
             # Redis streams require string values
             if isinstance(value, (dict, list)):
+                fields[f"_type_{key}"] = type(value).__name__
                 fields[key] = json.dumps(value)
             elif isinstance(value, (bool, int, float)):
                 # Store type information for proper deserialization
@@ -114,14 +115,6 @@ class RedisMessageSerializer(MessageSerializer):
                 if isinstance(value, bytes):
                     value = value.decode("utf-8")
 
-                # Try to parse JSON values first
-                try:
-                    if value and (value.startswith("{") or value.startswith("[")):
-                        message_data[key] = json.loads(value)
-                        continue
-                except (json.JSONDecodeError, AttributeError):
-                    pass
-                
                 # Apply type conversion if type info is available
                 if key in type_fields:
                     type_name = type_fields[key]
@@ -132,9 +125,11 @@ class RedisMessageSerializer(MessageSerializer):
                             message_data[key] = int(value)
                         elif type_name == "float":
                             message_data[key] = float(value)
+                        elif type_name in ("dict", "list"):
+                            message_data[key] = json.loads(value)
                         else:
                             message_data[key] = value
-                    except (ValueError, AttributeError):
+                    except (ValueError, AttributeError, json.JSONDecodeError):
                         message_data[key] = value
                 else:
                     message_data[key] = value

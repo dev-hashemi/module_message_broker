@@ -42,6 +42,7 @@ class RedisRequestResponseHandler:
         self._request_handlers: Dict[str, RequestHandler] = {}
         self._listening = False
         self._listen_task: Optional[asyncio.Task] = None
+        self._last_ttl_refresh: float = 0.0
 
     async def request(self, message: Message, timeout: float = 30.0) -> Message:
         """Send a request and wait for response.
@@ -68,7 +69,7 @@ class RedisRequestResponseHandler:
         try:
             # Publish request
             fields = self._serializer.serialize(message)
-            await self._redis_client.xadd(message.topic, fields)
+            await self._redis_client.xadd(message.topic, fields, maxlen=1000, approximate=True)
 
             logger.debug(
                 "Sent request message",
@@ -127,6 +128,8 @@ class RedisRequestResponseHandler:
             if "BUSYGROUP" not in str(e):
                 raise
 
+        await self._redis_client.expire(self._response_stream, 300)
+
         # Start listening task
         self._listen_task = asyncio.create_task(self._listen_loop())
         logger.info("Started request/response listener")
@@ -171,6 +174,12 @@ class RedisRequestResponseHandler:
     async def _process_responses(self) -> None:
         """Process incoming responses."""
         try:
+            # Refresh TTL on response stream periodically
+            now = asyncio.get_event_loop().time()
+            if now - self._last_ttl_refresh > 60:
+                await self._redis_client.expire(self._response_stream, 300)
+                self._last_ttl_refresh = now
+
             # Read from response stream
             streams = await self._redis_client.xreadgroup(
                 self._consumer_group,
@@ -263,7 +272,7 @@ class RedisRequestResponseHandler:
                                 response_message
                             )
                             await self._redis_client.xadd(
-                                request_message.reply_to, response_fields
+                                request_message.reply_to, response_fields, maxlen=1000, approximate=True
                             )
 
                             logger.debug(

@@ -45,7 +45,7 @@ class TestSyncRequestResponse:
         
         # Send request to non-existent topic
         request = Message(
-            topic=PubSubTopic.ASR_REQUEST,  # Different topic without handler
+            topic="test.timeout",  # Different topic without handler
             data={"test": "timeout"}
         )
         
@@ -176,15 +176,15 @@ class TestSyncRequestResponse:
                     data={"service": "user", "data": request.data}
                 )
             
-            # Handler for ASR_REQUEST
+            # Second handler for different topic
             async def interaction_handler(request: Message) -> Message:
                 return Message(
-                    topic=PubSubTopic.ASR_REQUEST,
+                    topic="test.multi",
                     data={"service": "interaction", "data": request.data}
                 )
             
             await server1.handle_requests([PubSubTopic.LLM_REQUEST], user_handler)
-            await server2.handle_requests([PubSubTopic.ASR_REQUEST], interaction_handler)
+            await server2.handle_requests(["test.multi"], interaction_handler)
             await asyncio.sleep(0.5)
             
             # Send requests to both handlers
@@ -194,7 +194,7 @@ class TestSyncRequestResponse:
             )
             
             interaction_request = Message(
-                topic=PubSubTopic.ASR_REQUEST,
+                topic="test.multi",
                 data={"type": "interaction_request"}
             )
             
@@ -234,7 +234,7 @@ class TestMixedPatterns:
             async def event_handler(message: Message):
                 events_received.append(message)
             
-            await service_broker.subscribe([PubSubTopic.ASR_REQUEST], event_handler)
+            await service_broker.subscribe(["test.async_event"], event_handler)
             
             # Setup sync request handler
             async def request_handler(request: Message) -> Message:
@@ -248,7 +248,7 @@ class TestMixedPatterns:
             
             # Test async pub/sub
             event = Message(
-                topic=PubSubTopic.ASR_REQUEST,
+                topic="test.async_event",
                 data={"event": "user_action"}
             )
             await client_broker.publish(event)
@@ -295,7 +295,7 @@ class TestMixedPatterns:
             async def pub_sub_handler(message: Message):
                 pub_sub_messages.append(message)
             
-            await subscriber.subscribe([PubSubTopic.TTS_REQUEST], pub_sub_handler)
+            await subscriber.subscribe(["test.isolation_event"], pub_sub_handler)
             
             # Setup request/response
             async def request_handler(request: Message) -> Message:
@@ -309,7 +309,7 @@ class TestMixedPatterns:
             
             # Send pub/sub message
             pub_message = Message(
-                topic=PubSubTopic.TTS_REQUEST,
+                topic="test.isolation_event",
                 data={"type": "pub_sub", "content": "broadcast"}
             )
             await publisher.publish(pub_message)

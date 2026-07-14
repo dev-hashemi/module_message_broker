@@ -9,16 +9,6 @@ from .llm_schemas import (
     LLMGenerateResponseSchema
 )
 
-from .asr_schemas import (
-    ASRTranscribeRequestSchema,
-    ASRTranscribeResponseSchema
-)
-
-from .tts_schemas import (
-    TTSSynthesizeRequestSchema,
-    TTSSynthesizeResponseSchema
-)
-
 from .user_schemas import (
     UserDeletedEventSchema
 )
@@ -28,16 +18,6 @@ from .llm_schemas import (
     LLMGenerateRequestMessage,
     LLMGenerateResponseMessage,
     LLMGenerateMultipartResponseMessage
-)
-
-from .asr_schemas import (
-    ASRTranscribeRequestMessage,
-    ASRTranscribeResponseMessage
-)
-
-from .tts_schemas import (
-    TTSSynthesizeRequestMessage,
-    TTSSynthesizeResponseMessage
 )
 
 from .user_schemas import (
@@ -55,18 +35,6 @@ __all__ = [
     "LLMGenerateRequestMessage",
     "LLMGenerateResponseMessage",
     "LLMGenerateMultipartResponseMessage",
-    
-    # ASR schemas
-    "ASRTranscribeRequestSchema",
-    "ASRTranscribeResponseSchema",
-    "ASRTranscribeRequestMessage",
-    "ASRTranscribeResponseMessage",
-    
-    # TTS schemas
-    "TTSSynthesizeRequestSchema",
-    "TTSSynthesizeResponseSchema",
-    "TTSSynthesizeRequestMessage", 
-    "TTSSynthesizeResponseMessage",
     
     # User schemas
     "UserDeletedEventSchema",
